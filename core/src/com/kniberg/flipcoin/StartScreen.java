@@ -25,6 +25,7 @@ public class StartScreen extends ScreenAdapter {
 
         Label label = new Label("Flip Coin!", game.skin);
         label.setPosition(100, 400);
+        label.setFontScale(2);
         stage.addActor(label);
 
         Button startGameButton = new TextButton("Start game", game.skin,"small");
@@ -49,7 +50,7 @@ public class StartScreen extends ScreenAdapter {
             public void run() {
                 addDroppingCoin();
             }
-        }, 1, 1);
+        }, 0.1f, 1);
     }
 
     private void addDroppingCoin() {
