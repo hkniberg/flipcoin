@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 public class GameScreen extends ScreenAdapter {
@@ -19,6 +20,18 @@ public class GameScreen extends ScreenAdapter {
         Label label = new Label("Game Screen", game.skin);
         label.setPosition(100, 400);
         stage.addActor(label);
+
+
+        CoinView coinView = new CoinView();
+        coinView.addAction(
+                Actions.forever(
+                        Actions.sequence(
+                                Actions.moveBy(20, 20, 0.5f),
+                                Actions.moveBy(-20, -20, 0.5f)
+                        )
+                )
+        );
+        stage.addActor(coinView);
     }
 
     @Override
