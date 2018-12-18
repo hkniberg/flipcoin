@@ -10,4 +10,12 @@ public class Coin {
     public void setState(CoinState state) {
         this.state = state;
     }
+
+    public void flip() {
+        if (state == CoinState.HEADS) {
+            this.state = CoinState.TAILS;
+        } else if (state == CoinState.TAILS) {
+            this.state = CoinState.HEADS;
+        }
+    }
 }
