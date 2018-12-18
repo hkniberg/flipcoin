@@ -3,16 +3,21 @@ package com.kniberg.flipcoin;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.kniberg.flipcoin.model.Coin;
+import com.kniberg.flipcoin.model.CoinState;
 
+/**
+ * An Actor that displays a single coin, and updates depending on the CoinState of the coin.
+ */
 public class CoinView extends Actor {
     private Coin coin;
     private Texture headsTexture;
     private Texture tailsTexture;
     private Animation<TextureRegion> spinAnimation;
     private float animationTime = 0;
+    private float opacity = 1f;
 
     public CoinView(Coin coin) {
         this.coin = coin;
@@ -64,9 +69,13 @@ public class CoinView extends Actor {
             region = spinAnimation.getKeyFrame(animationTime, true);
         }
 
+        batch.setColor(1, 1, 1, opacity);
         batch.draw(region, getX(), getY(), getOriginX(), getOriginY(),
                 getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
     }
 
 
+    public void setOpacity(float opacity) {
+        this.opacity = opacity;
+    }
 }
