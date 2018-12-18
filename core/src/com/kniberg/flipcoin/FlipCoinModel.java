@@ -18,4 +18,20 @@ public class FlipCoinModel {
     public void setBet(CoinState bet) {
         this.bet = bet;
     }
+
+    public boolean isWin() {
+        return coin.getState() == bet;
+    }
+
+    public void addToScore() {
+        score += 1;
+    }
+
+    public void removeFromScore() {
+        score -= 1;
+    }
+
+    public int getScore() {
+        return score;
+    }
 }

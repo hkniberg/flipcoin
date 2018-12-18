@@ -3,18 +3,24 @@ package com.kniberg.flipcoin;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Timer;
 
 public class GameScreen extends ScreenAdapter {
+    public static final float SPIN_TIME = 1.5f;
     private FlipCoinGame game;
     private FlipCoinModel model;
     private Stage stage;
+    private Group buttonGroup;
+    private Label scoreLabel;
+    private Label winLabel;
+    private Label loseLabel;
 
     public GameScreen(FlipCoinGame game) {
         this.game = game;
@@ -25,31 +31,25 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(stage);
 
 
-        Label label = new Label("What do you bet on?", game.skin);
-        label.setPosition(100, 400);
-        stage.addActor(label);
+        scoreLabel = new Label("", game.skin);
+        scoreLabel.setPosition(10, 500);
+        stage.addActor(scoreLabel);
+        updateScoreLabel();
 
-        Button headsButton = new TextButton("Heads", game.skin);
-        headsButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Heada");
-                return true;
-            }
-        });
-        headsButton.setPosition(100, 50);
-        stage.addActor(headsButton);
+        Label instructionsLabel = new Label("What do you bet on?", game.skin);
+        instructionsLabel.setPosition(10, 400);
+        stage.addActor(instructionsLabel);
 
-        Button tailsButton = new TextButton("Tails", game.skin);
-        tailsButton.setPosition(500, 50);
-        tailsButton.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Tails");
-                return true;
-            }
-        });
-        stage.addActor(tailsButton);
+        buttonGroup = createButtons(200);
+        stage.addActor(buttonGroup);
+
+        winLabel = new Label("You win!", game.skin);
+        winLabel.setPosition(10, 100);
+        stage.addActor(winLabel);
+        loseLabel = new Label("You lose!", game.skin);
+        loseLabel.setPosition(10, 100);
+        stage.addActor(loseLabel);
+        updateWinLoseLabel();
 
         CoinView coinView = new CoinView(this.model.getCoin());
         coinView.setPosition(400, 300);
@@ -63,9 +63,9 @@ public class GameScreen extends ScreenAdapter {
                 )
         );
         */
-        coinView.addListener(new InputListener(){
+        coinView.addListener(new InputListener() {
             @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("Coin click");
                 model.getCoin().flip();
                 return true;
@@ -73,6 +73,81 @@ public class GameScreen extends ScreenAdapter {
         });
 
         stage.addActor(coinView);
+    }
+
+    private void updateWinLoseLabel() {
+        if (model.getCoin().isSpinning() || model.getBet() == null) {
+            winLabel.setVisible(false);
+            loseLabel.setVisible(false);
+        } else if (model.isWin()) {
+            winLabel.setVisible(true);
+            loseLabel.setVisible(false);
+        } else {
+            winLabel.setVisible(false);
+            loseLabel.setVisible(true);
+        }
+    }
+
+    private Group createButtons(int buttonY) {
+        Group buttonGroup = new Group();
+
+        Button headsButton = new TextButton("Heads", game.skin);
+        headsButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                placeBet(CoinState.HEADS);
+                return true;
+            }
+        });
+        headsButton.setPosition(100, buttonY);
+        buttonGroup.addActor(headsButton);
+
+        Button tailsButton = new TextButton("Tails", game.skin);
+        tailsButton.setPosition(500, buttonY);
+        tailsButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                placeBet(CoinState.TAILS);
+                return true;
+            }
+        });
+        buttonGroup.addActor(tailsButton);
+        return buttonGroup;
+    }
+
+    private void updateScoreLabel() {
+        scoreLabel.setText("Score: " + model.getScore());
+    }
+
+    private void placeBet(CoinState bet) {
+        model.setBet(bet);
+        model.getCoin().spin();
+        buttonGroup.setVisible(false);
+        updateWinLoseLabel();
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                model.getCoin().endSpin();
+                buttonGroup.setVisible(true);
+                if (model.isWin()) {
+                    wonBet();
+                } else {
+                    lostBet();
+                }
+                updateWinLoseLabel();
+            }
+        }, SPIN_TIME);
+    }
+
+    private void wonBet() {
+        model.addToScore();
+        updateScoreLabel();
+    }
+
+    private void lostBet() {
+        model.removeFromScore();
+        updateScoreLabel();
     }
 
     @Override

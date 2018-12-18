@@ -42,7 +42,7 @@ public class CoinView extends Actor {
         }
 
         // Initialize the Animation with the frame interval and array of frames
-        spinAnimation = new Animation<TextureRegion>(0.1f, walkFrames);
+        spinAnimation = new Animation<TextureRegion>(0.05f, walkFrames);
 
     }
 
